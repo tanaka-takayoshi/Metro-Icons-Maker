@@ -207,10 +207,13 @@ namespace ImageShrinker
                                        96d, 96d,
                                        PixelFormats.Pbgra32);
             var isolatedVisual = new DrawingVisual();
+            var canvasLeft = (icon.GetValue(Canvas.LeftProperty) as double?) ?? 0d;
+            canvasLeft = double.IsNaN(canvasLeft) ? 0d : canvasLeft;
+            var canvasTop = (icon.GetValue(Canvas.TopProperty) as double?) ?? 0d;
+            canvasTop = double.IsNaN(canvasTop) ? 0d : canvasTop;
             using (var drawing = isolatedVisual.RenderOpen())
             {
-                //drawing.DrawRectangle(Brushes.Transparent, null, new Rect(new Point(), new Size((int)canvas.Width, (int)canvas.Height)));
-                drawing.DrawRectangle(new VisualBrush(icon), null, new Rect(new Point(160,0), new Size((int)icon.Width, (int)icon.Height)));
+                drawing.DrawRectangle(new VisualBrush(icon), null, new Rect(new Point(canvasLeft, canvasTop), new Size((int)icon.Width, (int)icon.Height)));
             }
             targetBitmap.Render(isolatedVisual);
 
