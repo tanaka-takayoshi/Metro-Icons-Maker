@@ -39,7 +39,7 @@ namespace ImageShrinker
             if (App.Language == "English") IsJapanese = false;
             if (IsJapanese)
             {
-                Save.Content = "アイコン保存";
+                Save.Content = "ストア用にアイコン保存";
                 Open.Content = "画像を開く";
                 projectLabel.Content = "プロジェクト名";
                 CompleteNotice.Content = "クリップボードからコピー＆貼り付けするか、画像をドラッグ＆ドロップするか、[画像を開く]をクリック";
@@ -144,14 +144,16 @@ namespace ImageShrinker
         private void DisplayIconNames()
         {
             string name = projectName.Text;
-            name200.Text = name + "_200.png";
-            name200.Visibility = Visibility.Visible;
-            name173.Text = name + "_173.png";
-            name173.Visibility = Visibility.Visible;
-            name99.Text = name + "_99.png";
-            name99.Visibility = Visibility.Visible;
-            name62.Text = name + "_62.png";
-            name62.Visibility = Visibility.Visible;
+            name620_300.Text = name + "-Splash.png";
+            name620_300.Visibility = Visibility.Visible;
+            name310_150.Text = name + ".png";
+            name310_150.Visibility = Visibility.Visible;
+            name150.Text = name + "-single.png";
+            name150.Visibility = Visibility.Visible;
+            name50.Text = name + "-store.png";
+            name50.Visibility = Visibility.Visible;
+            name30.Text = name + "-small.png";
+            name30.Visibility = Visibility.Visible;
         }
         private void projectName_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -163,7 +165,7 @@ namespace ImageShrinker
         private void Save_Click(object sender, RoutedEventArgs e)
         {
 
-            if (Icon200.Fill != null)
+            if (Icon620_300.Fill != null)
             {
                 string path = System.IO.Path.GetDirectoryName(this.fileName);
                 path = path + "\\" + projectName.Text + " Icons";
@@ -173,12 +175,11 @@ namespace ImageShrinker
                     return;
                 }
                 System.IO.Directory.CreateDirectory(path);
-                EncodeAndSave(Icon200, name200.Text as string, path);
-                EncodeAndSave(Icon173, name173.Text as string, path);
-                EncodeAndSave(Icon173, "Background.png", path);
-                EncodeAndSave(Icon99, name99.Text as string, path);
-                EncodeAndSave(Icon62, name62.Text as string, path);
-                EncodeAndSave(Icon62, "ApplicationIcon.png", path);
+                EncodeCanvas(Canvas620_300, Icon620_300, name620_300.Text, path);
+                EncodeCanvas(Canvas310_150, Icon310_150, name310_150.Text, path);
+                EncodeAndSave(Icon150, name150.Text, path);
+                EncodeAndSave(Icon50, name50.Text, path);
+                EncodeAndSave(Icon30, name30.Text as string, path);
                 string folder = "On same folder with your image";
                 if (IsPasted) folder = "On your desktop";
                 if (IsJapanese)
@@ -197,6 +198,32 @@ namespace ImageShrinker
                 CompleteNotice.Content = notice5;
             }
             
+        }
+        private void EncodeCanvas(Canvas canvas, Rectangle icon, string name, string filePath)
+        {
+            RenderTargetBitmap targetBitmap =
+                new RenderTargetBitmap((int)canvas.Width,
+                                       (int)canvas.Height,
+                                       96d, 96d,
+                                       PixelFormats.Pbgra32);
+            var isolatedVisual = new DrawingVisual();
+            using (var drawing = isolatedVisual.RenderOpen())
+            {
+                //drawing.DrawRectangle(Brushes.Transparent, null, new Rect(new Point(), new Size((int)canvas.Width, (int)canvas.Height)));
+                drawing.DrawRectangle(new VisualBrush(icon), null, new Rect(new Point(160,0), new Size((int)icon.Width, (int)icon.Height)));
+            }
+            targetBitmap.Render(isolatedVisual);
+
+            // add the RenderTargetBitmap to a Bitmapencoder
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(targetBitmap));
+            
+            // save file to disk
+            string fileOut = filePath + "\\" + name;
+            using (var fs = File.Open(fileOut, FileMode.OpenOrCreate))
+            {
+                encoder.Save(fs);
+            }
         }
         private void EncodeAndSave(FrameworkElement icon, string name, string filePath)
         {
@@ -264,15 +291,17 @@ namespace ImageShrinker
             scale = imageSource.Width / grayImage.ActualWidth;
             string name = System.IO.Path.GetFileNameWithoutExtension(fileName);
             projectName.Text = name;
-            name200.Visibility = Visibility.Hidden;
-            name173.Visibility = Visibility.Hidden;
-            name62.Visibility = Visibility.Hidden;
-            name99.Visibility = Visibility.Hidden;
+            name620_300.Visibility = Visibility.Hidden;
+            name310_150.Visibility = Visibility.Hidden;
+            name150.Visibility = Visibility.Hidden;
+            name50.Visibility = Visibility.Hidden;
+            name30.Visibility = Visibility.Hidden;
             CompleteNotice.Content = notice1;
-            Icon200.Fill = null;
-            Icon173.Fill = null;
-            Icon99.Fill = null;
-            Icon62.Fill = null;
+            Icon620_300.Fill = null;
+            Icon310_150.Fill = null;
+            Icon150.Fill = null;
+            Icon50.Fill = null; 
+            Icon30.Fill = null;
             myCanvas.Children.Remove(rectFrame);
         }
 
@@ -363,10 +392,14 @@ namespace ImageShrinker
                 brush.ViewboxUnits = BrushMappingMode.Absolute;
                 brush.Stretch = Stretch.Fill;
 
-                Icon200.Fill = brush;
-                Icon173.Fill = brush;
-                Icon99.Fill = brush;
-                Icon62.Fill = brush;
+                var br = new SolidColorBrush(Colors.Transparent);
+                Canvas620_300.Background = br;
+                Canvas310_150.Background = br;
+                Icon620_300.Fill = brush;
+                Icon310_150.Fill = brush;
+                Icon150.Fill = brush;
+                Icon50.Fill = brush;
+                Icon30.Fill = brush;
                 DisplayIconNames();
             }
         }
