@@ -371,7 +371,7 @@ namespace ImageShrinker
                 if (w > h) 
                     p2.Y = (p2.Y > p1.Y) ? p1.Y + w : p1.Y - w;
                 else 
-                    p2.X = (p2.X > p1.X) ? p1.X + h : p1.X - w;
+                    p2.X = (p2.X > p1.X) ? p1.X + h : p1.X - h;
 
                 Point lt = new Point((p1.X > p2.X) ? p2.X : p1.X, (p1.Y > p2.Y) ? p2.Y : p1.Y);
                 Point rb = new Point((p1.X > p2.X) ? p1.X : p2.X, (p1.Y > p2.Y) ? p1.Y : p2.Y);
