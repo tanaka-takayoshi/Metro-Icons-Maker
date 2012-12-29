@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Globalization;
 using System.Windows.Media.Animation;
+using System.Linq;
 
 namespace ImageShrinker
 {
@@ -39,7 +40,7 @@ namespace ImageShrinker
             if (App.Language == "English") IsJapanese = false;
             if (IsJapanese)
             {
-                Save.Content = "ストア用にアイコン保存";
+                Save.Content = "アイコン保存";
                 Open.Content = "画像を開く";
                 projectLabel.Content = "プロジェクト名";
                 CompleteNotice.Content = "クリップボードからコピー＆貼り付けするか、画像をドラッグ＆ドロップするか、[画像を開く]をクリック";
@@ -51,6 +52,7 @@ namespace ImageShrinker
                 openFilter = "画像ファイル (*.png, *.jpg)|*.png;*.jpg|すべてのファイル (*.*)|*.*";
                 openFolder = "同じプロジェクト名のアイコンが既にあります、別のプロジェクト名に変更してください";
             }
+            AppTypeComboBox.SelectedIndex = 0;
         }
         #endregion InitializeText
 
@@ -154,6 +156,30 @@ namespace ImageShrinker
             name50.Visibility = Visibility.Visible;
             name30.Text = name + "-small.png";
             name30.Visibility = Visibility.Visible;
+
+            // WP8
+            name691_336.Visibility = Visibility.Visible;
+            name691_336.Text = "FlipCycleTileLarge.png";
+            name336.Visibility = Visibility.Visible;
+            name336.Text = "FlipCycleTileMedium.png";
+            name159.Visibility = Visibility.Visible;
+            name159.Text = "FlipCycleTileSmall.png";
+            name300.Visibility = Visibility.Visible;
+            name300.Text = name + ".png";
+            name134_202.Visibility = Visibility.Visible;
+            name134_202.Text = "IconicTileMediumLarge.png";
+            name71_110.Visibility = Visibility.Visible;
+            name71_110.Text = "IconicTileSmall.png";
+            name99.Visibility = Visibility.Visible;
+            name99.Text = "ApplicationIcon.png";
+
+            // WP7
+            name300_WP7.Visibility = Visibility.Visible;
+            name300_WP7.Text = name + ".png";
+            name173.Visibility = Visibility.Visible;
+            name173.Text = "Background.png";
+            name62.Visibility = Visibility.Visible;
+            name62.Text = "ApplicationIcon.png";
         }
         private void projectName_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -164,7 +190,23 @@ namespace ImageShrinker
         #region SaveIcons
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-
+            switch (AppTypeComboBox.SelectedIndex)
+            {
+                case 0:
+                    SaveStoreIcons();
+                    break;
+                case 1:
+                    SaveWP8Icons();
+                    break;
+                case 2:
+                    SaveWP7Icons();
+                    break;
+                default:
+                    break;
+            }            
+        }
+        private void SaveStoreIcons()
+        {
             if (Icon620_300.Fill != null)
             {
                 string path = System.IO.Path.GetDirectoryName(this.fileName);
@@ -190,14 +232,83 @@ namespace ImageShrinker
                 CompleteNotice.Content = folder + projectName.Text + " Icons" + notice3;
                 CompleteNotice.Visibility = Visibility.Visible;
 
-                Storyboard effect = (Storyboard)this.FindResource("Storyboard1");
+                Storyboard effect = (Storyboard)this.FindResource("StoryboardStoreApp");
                 BeginStoryboard(effect);
             }
             else
             {
                 CompleteNotice.Content = notice5;
             }
-            
+        }
+        private void SaveWP8Icons()
+        {
+            if (Icon691_336.Fill != null)
+            {
+                string path = System.IO.Path.GetDirectoryName(this.fileName);
+                path = path + "\\" + projectName.Text + " Icons";
+                if (Directory.Exists(path))
+                {
+                    MessageBox.Show(openFolder);
+                    return;
+                }
+                System.IO.Directory.CreateDirectory(path);
+                EncodeCanvas(Canvas691_336, Icon691_336, name691_336.Text, path);
+                EncodeAndSave(Icon336, name336.Text, path);
+                EncodeAndSave(Icon159, name159.Text, path);
+                EncodeAndSave(Icon300, name300.Text, path);
+                EncodeCanvas(Canvas134_202, Icon134_202, name134_202.Text, path);
+                EncodeCanvas(Canvas71_110, Icon71_110, name71_110.Text, path);
+                EncodeAndSave(Icon99, name99.Text, path);
+                string folder = "On same folder with your image";
+                if (IsPasted) folder = "On your desktop";
+                if (IsJapanese)
+                {
+                    folder = "画像と同じフォルダーに";
+                    if (IsPasted) folder = "デスクトップに";
+                }
+                CompleteNotice.Content = folder + projectName.Text + " Icons" + notice3;
+                CompleteNotice.Visibility = Visibility.Visible;
+
+                Storyboard effect = (Storyboard)this.FindResource("StoryboardStoreWP8");
+                BeginStoryboard(effect);
+            }
+            else
+            {
+                CompleteNotice.Content = notice5;
+            }
+        }
+        private void SaveWP7Icons()
+        {
+            if (Icon300_WP7.Fill != null)
+            {
+                string path = System.IO.Path.GetDirectoryName(this.fileName);
+                path = path + "\\" + projectName.Text + " Icons";
+                if (Directory.Exists(path))
+                {
+                    MessageBox.Show(openFolder);
+                    return;
+                }
+                System.IO.Directory.CreateDirectory(path);
+                EncodeAndSave(Icon300_WP7, name300_WP7.Text, path);
+                EncodeAndSave(Icon173, name173.Text, path);
+                EncodeAndSave(Icon62, name62.Text as string, path);
+                string folder = "On same folder with your image";
+                if (IsPasted) folder = "On your desktop";
+                if (IsJapanese)
+                {
+                    folder = "画像と同じフォルダーに";
+                    if (IsPasted) folder = "デスクトップに";
+                }
+                CompleteNotice.Content = folder + projectName.Text + " Icons" + notice3;
+                CompleteNotice.Visibility = Visibility.Visible;
+
+                Storyboard effect = (Storyboard)this.FindResource("StoryboardStoreWP7");
+                BeginStoryboard(effect);
+            }
+            else
+            {
+                CompleteNotice.Content = notice5;
+            }
         }
         private void EncodeCanvas(Canvas canvas, Rectangle icon, string name, string filePath)
         {
@@ -299,12 +410,43 @@ namespace ImageShrinker
             name150.Visibility = Visibility.Hidden;
             name50.Visibility = Visibility.Hidden;
             name30.Visibility = Visibility.Hidden;
+
+            // WP8
+            name691_336.Visibility = Visibility.Hidden;
+            name336.Visibility = Visibility.Hidden;
+            name159.Visibility = Visibility.Hidden;
+            name300.Visibility = Visibility.Hidden;
+            name134_202.Visibility = Visibility.Hidden;
+            name71_110.Visibility = Visibility.Hidden;
+            name99.Visibility = Visibility.Hidden;
+
+            // WP7
+            name300_WP7.Visibility = Visibility.Hidden;
+            name173.Visibility = Visibility.Hidden;
+            name62.Visibility = Visibility.Hidden;
+
             CompleteNotice.Content = notice1;
+
             Icon620_300.Fill = null;
             Icon310_150.Fill = null;
             Icon150.Fill = null;
             Icon50.Fill = null; 
             Icon30.Fill = null;
+
+            // WP8
+            Icon691_336.Fill = null;
+            Icon336.Fill = null;
+            Icon159.Fill = null;
+            Icon300.Fill = null;
+            Icon134_202.Fill = null;
+            Icon71_110.Fill = null;
+            Icon99.Fill = null;
+
+            // WP7
+            Icon300_WP7.Fill = null;
+            Icon173.Fill = null;
+            Icon62.Fill = null;
+
             myCanvas.Children.Remove(rectFrame);
         }
 
@@ -396,6 +538,7 @@ namespace ImageShrinker
                 brush.Stretch = Stretch.Fill;
 
                 var br = new SolidColorBrush(Colors.Transparent);
+                // Store apps
                 Canvas620_300.Background = br;
                 Canvas310_150.Background = br;
                 Icon620_300.Fill = brush;
@@ -403,11 +546,53 @@ namespace ImageShrinker
                 Icon150.Fill = brush;
                 Icon50.Fill = brush;
                 Icon30.Fill = brush;
+
+                // WP8
+                Canvas691_336.Background = br;
+                Icon691_336.Fill = brush;
+                Icon336.Fill = brush;
+                Icon159.Fill = brush;
+                Icon300.Fill = brush;
+                Canvas134_202.Background = br;
+                Icon134_202.Fill = brush;
+                Canvas71_110.Background = br;
+                Icon71_110.Fill = brush;
+                Icon99.Fill = brush;
+
+                // WP7
+                Icon300_WP7.Fill = brush;
+                Icon173.Fill = brush;
+                Icon62.Fill = brush;
+
                 DisplayIconNames();
             }
         }
 
         #endregion MouseMove
+
+        private void ComboBox_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
+        {
+            switch (AppTypeComboBox.SelectedIndex)
+            {
+                case 0:
+                    iconPanelForStoreApp.Visibility = Visibility.Visible;
+                    iconPanelWP7.Visibility = Visibility.Collapsed;
+                    iconPanelWP8.Visibility = Visibility.Collapsed;
+                    break;
+                case 1:
+                    iconPanelForStoreApp.Visibility = Visibility.Collapsed;
+                    iconPanelWP8.Visibility = Visibility.Visible;
+                    iconPanelWP7.Visibility = Visibility.Collapsed;
+                    break;
+                case 2:
+                    iconPanelForStoreApp.Visibility = Visibility.Collapsed;
+                    iconPanelWP8.Visibility = Visibility.Collapsed;
+                    iconPanelWP7.Visibility = Visibility.Visible;
+                    break;
+                default:
+                    break;
+            }
+        }
 
     }
 }
